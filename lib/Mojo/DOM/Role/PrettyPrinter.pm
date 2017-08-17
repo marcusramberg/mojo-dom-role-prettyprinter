@@ -5,10 +5,12 @@ use Mojo::UserAgent;
 use Carp 'croak';
 use Mojo::ByteStream 'b';
 
+our $VERSION='0.01';
+
 requires 'tree';
 
 # Render as pretty xml
-sub as_pretty_xml {
+sub to_pretty_string {
   my ($self, $i) = (shift, shift // 0);
   my $tree = shift || $self->tree;
 
@@ -62,7 +64,7 @@ sub as_pretty_xml {
     my $content;
 
     # Pretty print the content
-    $content .= $self->as_pretty_xml($i, $tree->[$_]) for 1 .. $#$tree;
+    $content .= $self->to_pretty_string($i, $tree->[$_]) for 1 .. $#$tree;
 
     return $content;
   }
@@ -187,7 +189,7 @@ sub _element {
       foreach (@{$child}[$offset .. $#$child]) {
 
         # Render next element
-        $content .= $self->as_pretty_xml($i + 1, $_);
+        $content .= $self->to_pretty_string($i + 1, $_);
       }
 
       # Correct Indent
@@ -242,21 +244,21 @@ Mojo::DOM::Role::PrettyPrinter - Add a pretty printer method to Mojo::DOM
 
   use Mojo::DOM;
   my $dom=Mojo::DOM->with_roles('+Role::PrettyPrinter')->new('<div><h1>Loving it</h1></div>');
-  warn $dom->as_pretty_xml;
+  warn $dom->to_pretty_string;
   # <div>
   #   <h1>Loving it</h1>
   # </div>
 
 =head1 DESCRIPTION
 
-Support pretty printing XML documents. The original source for this function was 
+Support pretty printing XML documents. The original source for this function was
 extracted from L<XML::Loy>.
 
 head1 METHODS
 
-=head2 as_pretty_xml
+=head2 to_pretty_string
 
-Print the current L<Mojo::DOM> structure as indented XML.
+Returns the current L<Mojo::DOM> structure as indented XML.
 
 =head1 COPYRIGHT AND LICENSE
 
