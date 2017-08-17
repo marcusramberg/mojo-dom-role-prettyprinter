@@ -5,7 +5,7 @@ use Mojo::UserAgent;
 use Carp 'croak';
 use Mojo::ByteStream 'b';
 
-our $VERSION='0.01';
+our $VERSION = '0.01';
 
 requires 'tree';
 
