@@ -1,7 +1,6 @@
 package Mojo::DOM::Role::PrettyPrinter;
 
 use Role::Tiny;
-use Mojo::UserAgent;
 use Carp 'croak';
 use Mojo::ByteStream 'b';
 
@@ -92,78 +91,8 @@ sub _element {
 
     # There is only a textual child - no indentation
     if (!$child->[1] && ($child->[0] && $child->[0]->[0] eq 'text')) {
-
-      # Special content treatment
-      if (exists $attr->{'loy:type'}) {
-
-        # With base64 indentation
-        if ($attr->{'loy:type'} =~ /^armour(?::(\d+))?$/i) {
-          my $n = $1 || 60;
-
-          my $string = $child->[0]->[1];
-
-          # Delete whitespace
-          $string =~ tr{\t-\x0d }{}d;
-
-          # Introduce newlines after n characters
-          $content .= "\n" . ('  ' x ($i + 1));
-          $content .= join "\n" . ('  ' x ($i + 1)), (unpack "(A$n)*", $string);
-          $content .= "\n" . ('  ' x $i);
-        }
-
-        # No special treatment
-        else {
-
-          # Escape
-          $content .= b($child->[0]->[1])->trim->xml_escape;
-        }
-      }
-
-      # No special content treatment indentation
-      else {
-
         # Escape
         $content .= b($child->[0]->[1])->trim->xml_escape;
-      }
-    }
-
-    # Treat children special
-    elsif (exists $attr->{'loy:type'}) {
-
-      # Raw
-      if ($attr->{'loy:type'} eq 'raw') {
-
-        foreach (@$child) {
-
-          # Create new dom object
-          my $dom = __PACKAGE__->new;
-          $dom->xml(1);
-
-          # Print without prettifying
-          $content .= $dom->tree($_)->to_string;
-        }
-      }
-
-      # Todo:
-      elsif ($attr->{'loy:type'} eq 'escape') {
-        $content .= "\n";
-
-        foreach (@$child) {
-
-          # Create new dom object
-          my $dom = __PACKAGE__->new;
-          $dom->xml(1);
-
-          # Pretty print
-          my $string = $dom->tree($_)->to_pretty_xml($i + 1);
-
-          # Encode
-          $content .= b($string)->xml_escape;
-        }
-
-        # Correct Indent
-        $content .= '  ' x $i;
-      }
     }
 
     # There are a couple of children
@@ -172,10 +101,7 @@ sub _element {
       my $offset = 0;
 
       # First element is unformatted textual
-      if ( !exists $attr->{'loy:type'}
-        && $child->[0]
-        && $child->[0]->[0] eq 'text')
-      {
+      if ($child->[0] && $child->[0]->[0] eq 'text') {
 
         # Append directly to the last tag
         $content .= b($child->[0]->[1])->trim->xml_escape;
@@ -214,12 +140,6 @@ sub _attr {
   my ($self, $indent_space) = (shift, shift);
   my %attr = %{$_[0]};
 
-  # Delete special and namespace attributes
-  my @special = grep { $_ eq 'xmlns:loy' || index($_, 'loy:') == 0 } keys %attr;
-
-  # Delete special attributes
-  delete $attr{$_} foreach @special;
-
   # Prepare attribute values
   $_ = b($_)->xml_escape->quote foreach values %attr;
 
@@ -243,7 +163,7 @@ Mojo::DOM::Role::PrettyPrinter - Add a pretty printer method to Mojo::DOM
 =head1 SYNOPSIS
 
   use Mojo::DOM;
-  my $dom=Mojo::DOM->with_roles('+Role::PrettyPrinter')->new('<div><h1>Loving it</h1></div>');
+  my $dom=Mojo::DOM->with_roles('+PrettyPrinter')->new('<div><h1>Loving it</h1></div>');
   warn $dom->to_pretty_string;
   # <div>
   #   <h1>Loving it</h1>
@@ -254,7 +174,7 @@ Mojo::DOM::Role::PrettyPrinter - Add a pretty printer method to Mojo::DOM
 Support pretty printing XML documents. The original source for this function was
 extracted from L<XML::Loy>.
 
-head1 METHODS
+=head1 METHODS
 
 =head2 to_pretty_string
 
