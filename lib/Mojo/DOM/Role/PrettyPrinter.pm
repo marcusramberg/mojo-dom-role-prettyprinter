@@ -4,7 +4,7 @@ use Role::Tiny;
 use Carp 'croak';
 use Mojo::ByteStream 'b';
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 requires 'tree';
 
