@@ -1,5 +1,8 @@
 Revision history for perl distribution Mojo-DOM-Role-PrettyPrinter
 
+0.03 Not Released
+ - Another POD fix
+
 0.02 2017-08-17T14:27:32+0200
  - Fix POD
  - Remove XML::Loy specific handling

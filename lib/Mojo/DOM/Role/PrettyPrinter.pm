@@ -186,6 +186,7 @@ Copyright (C) 2008-2017, Marcus Ramberg and Nils Diewald
 
 This program is free software, you can redistribute it and/or modify it under
 the terms of the Artistic License version 2.0.
+
 =head1 SEE ALSO
 
 L<Mojolicious>, L<Mojolicious::Guides>, L<http://mojolicious.org>.
